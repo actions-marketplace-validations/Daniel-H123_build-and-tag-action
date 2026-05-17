@@ -1,7 +1,6 @@
-<h3 align="center">📦🔖</h3>
-<h3 align="center">Build and Tag action</h3>
+<h3 align="center">Build and Tag action v3</h3>
 
-<p align="center"><a href="https://github.com/JasonEtco/build-and-tag-action"><img alt="GitHub Actions status" src="https://github.com/JasonEtco/build-and-tag-action/workflows/CI/badge.svg"></a> <a href="https://codecov.io/gh/JasonEtco/build-and-tag-action/"><img src="https://badgen.now.sh/codecov/c/github/JasonEtco/build-and-tag-action" alt="Codecov"></a></p>
+<p align="center"><a href="https://github.com/Daniel-H123/build-and-tag-action"><img alt="GitHub Actions status" src="https://github.com/Daniel-H123/build-and-tag-action/workflows/CI/badge.svg"></a> <a href="https://codecov.io/gh/Daniel-H123/build-and-tag-action/"><img src="https://badgen.now.sh/codecov/c/github/Daniel-H123/build-and-tag-action" alt="Codecov"></a></p>
 
 ---
 
@@ -29,14 +28,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.release.tag_name }}
       - name: Install deps and build
         run: npm ci && npm run build
-      - uses: JasonEtco/build-and-tag-action@v2
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+      - uses: Daniel-H123/build-and-tag-action@v3
+        with:
+          github_token: ${{ github.token }}
 ```
 
 You can also use this action with other events - you'll just need to specify a `tag_name` (see below).
@@ -66,7 +65,7 @@ The tag to update. If the workflow event is `release`, it will use the `tag_name
 ```yaml
 - uses: fictional/releaser@v1 # Not a real action!
   id: releaser
-- uses: JasonEtco/build-and-tag-action@v2
+- uses: Daniel-H123/build-and-tag-action@v3
   with:
     tag_name: ${{ steps.releaser.outputs.tag_name }}
 ```

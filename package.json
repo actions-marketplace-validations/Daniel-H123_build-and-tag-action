@@ -1,24 +1,26 @@
 {
   "name": "build-and-tag-action",
   "version": "3.0.0",
-  "main": "dist/index.cjs",
+  "main": "dist/index.js",
   "scripts": {
     "test": "vitest",
     "test:coverage": "vitest --coverage",
     "coverage": "vitest --coverage --run",
     "format": "prettier --write \"src/**/*.{ts,js}\" \"tests/**/*.{ts,js}\"",
     "format:check": "prettier --check \"src/**/*.{ts,js}\" \"tests/**/*.{ts,js}\"",
-    "build": "node build.mjs"
+    "build": "ncc build src/index.ts -m"
   },
   "type": "module",
   "dependencies": {
     "@actions/core": "^3.0.1",
+    "@actions/exec": "^3.0.0",
     "@actions/github": "^9.1.1",
     "semver": "^7.8.0"
   },
   "devDependencies": {
     "@types/node": "^25.8.0",
     "@types/semver": "^7.7.1",
+    "@vercel/ncc": "^0.38.4",
     "@vitest/coverage-v8": "^4.1.6",
     "js-yaml": "^4.1.1",
     "nock": "^14.0.15",

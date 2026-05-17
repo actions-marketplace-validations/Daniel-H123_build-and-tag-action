@@ -61,11 +61,11 @@ describe('create-commit', () => {
     expect(commitParams.parents).toEqual(['123abc'])
   })
 
-  it('throws when main is not defined in package.json', async () => {
+  it('throws when action.yml and action.yaml are not defined', async () => {
     process.env.GITHUB_WORKSPACE = 'tests/fixtures'
 
     await expect(createCommit(octokit)).rejects.toThrow(
-      'Property "main" does not exist in your `package.json`.'
+      'Neither action.yml nor action.yaml found in the repository.'
     )
   })
 

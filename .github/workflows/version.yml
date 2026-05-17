@@ -18,21 +18,36 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
-          ref: main
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
           fetch-depth: 0
 
+      - name: Check for version bypass label
+        id: bypass
+        run: |
+          LABELS=$(echo '${{ toJson(github.event.pull_request.labels.*.name) }}' | tr '[:upper:]' '[:lower:]')
+
+          if echo "$LABELS" | grep -q 'skip-version'; then
+            echo "should_bump=false" >> $GITHUB_OUTPUT
+            echo "Version bump bypass label found; skipping version bump."
+          else
+            echo "should_bump=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Setup node
+        if: steps.bypass.outputs.should_bump == 'true'
         uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: 'npm'
 
       - name: Configure Git
+        if: steps.bypass.outputs.should_bump == 'true'
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
       - name: Determine version bump from labels
+        if: steps.bypass.outputs.should_bump == 'true'
         id: bump
         run: |
           LABELS=$(echo '${{ toJson(github.event.pull_request.labels.*.name) }}' | tr '[:upper:]' '[:lower:]')
@@ -48,12 +63,14 @@ jobs:
           fi
           
       - name: Read current version
+        if: steps.bypass.outputs.should_bump == 'true'
         id: version
         run: |
           VERSION=$(node -p "require('./package.json').version")
           echo "current=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Calculate new version
+        if: steps.bypass.outputs.should_bump == 'true'
         id: new_version
         run: |
           VERSION="${{ steps.version.outputs.current }}"
@@ -72,15 +89,18 @@ jobs:
           echo "value=$NEW_VERSION" >> $GITHUB_OUTPUT
 
       - name: Bump version
+        if: steps.bypass.outputs.should_bump == 'true'
         run: |
           npm version ${{ steps.bump.outputs.bump }} --no-git-tag-version
           git add package.json package-lock.json || true
 
       - name: Commit + tag
+        if: steps.bypass.outputs.should_bump == 'true'
         run: |
           git commit -m "chore(release): ${{ steps.new_version.outputs.value }}"
           git tag -a "v${{ steps.new_version.outputs.value }}" -m "Release v${{ steps.new_version.outputs.value }}"
 
       - name: Push commit and tags
+        if: steps.bypass.outputs.should_bump == 'true'
         run: |
-          git push origin main --follow-tags
+          git push origin HEAD:main --follow-tags
